@@ -191,17 +191,17 @@ class DeepLabv3p_mid(object):
         out = tf.keras.layers.Concatenate(name='aspp/add')([x1, x2, x3, x4, x5])
         return out
 
-    def _SimAM(self, inputs):
-        height = inputs.shape[1]
-        width = inputs.shape[2]
-        e_lambda=1e-7
-        # spatial size
-        n = width * height - 1
-        # square of (t - u)
-        d = tf.math.square(inputs - tf.math.reduce_mean(inputs, axis=(1, 2), keepdims=True))
-        # d.sum() / n is channel variance
-        v = tf.math.reduce_sum(d, axis=(1, 2), keepdims=True) / n
-        # E_inv groups all importance of X
-        E_inv = d / (4 *  tf.maximum(v, e_lambda) + 0.5)
-        return inputs * tf.keras.activations.sigmoid(E_inv)
+    # def _SimAM(self, inputs):
+    #     height = inputs.shape[1]
+    #     width = inputs.shape[2]
+    #     e_lambda=1e-7
+    #     # spatial size
+    #     n = width * height - 1
+    #     # square of (t - u)
+    #     d = tf.math.square(inputs - tf.math.reduce_mean(inputs, axis=(1, 2), keepdims=True))
+    #     # d.sum() / n is channel variance
+    #     v = tf.math.reduce_sum(d, axis=(1, 2), keepdims=True) / n
+    #     # E_inv groups all importance of X
+    #     E_inv = d / (4 *  tf.maximum(v, e_lambda) + 0.5)
+    #     return inputs * tf.keras.activations.sigmoid(E_inv)
 
