@@ -102,10 +102,12 @@ class DeepLabv3p_mid(object):
         print("-----------build decoder-----------")
         dilations = [1, 6, 12, 18]
 
-        low_level_feat = self._SimAM(low_level_feat)
-        high_level_feat = self._SimAM(high_level_feat) 
+        # low_level_feat = self._SimAM(low_level_feat)
+        # high_level_feat = self._SimAM(high_level_feat)
+        low_level_feat = SimAM()(low_level_feat)
+        high_level_feat = SimAM()(high_level_feat) 
 
-        middle_features = self._SimAM(middle_level_feat)
+        middle_features = SimAM()(middle_level_feat)
         middle_features = tf.keras.layers.Conv2D(48, (1, 1), padding='same', kernel_initializer='he_normal')(middle_features)
         middle_features = tf.keras.layers.BatchNormalization()(middle_features)
         middle_features = tf.keras.layers.ReLU()(middle_features)
