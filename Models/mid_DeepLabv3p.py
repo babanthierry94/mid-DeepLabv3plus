@@ -41,24 +41,25 @@ class DeepLabv3p_mid(object):
     ResNet-50
     output_stride fixed 16
     """
-    def __init__(self, num_classes=21, encoder_name="res101", input_shape=(512,512,3), finetune=False, output_stride=16):
-        if encoder_name not in ['res101', 'res50']:
-          print('encoder_name ERROR!')
-          print("Please input: res101, res50")
+    def __init__(self, num_classes=21, backbone_name="res101", input_shape=(512,512,3), finetune=False, output_stride=16):
+        if backbone_name not in ['res101', 'res50']:
+          print("backbone_name ERROR! Please input: res101, res50")
           raise NotImplementedError
-
-        self.encoder_name = encoder_name
+        
         self.inputs = tf.keras.layers.Input(shape=input_shape)
+        # Number of blocks for ResNet50 and ResNet101
+        self.backbone_name = backbone_name
         self.num_classes = num_classes
-        self.channel_axis = 3
+        self.output_stride = output_stride
+        if self.output_stride != 16:
+            raise NotImplementedError
+        
         if finetune :
             self.pretrained = "imagenet"
         else :
             self.pretrained = None
-        self.output_stride = output_stride
-        if self.output_stride not in [16]:
-            raise NotImplementedError
-
+        # Dilations rates for ASPP module
+        self.aspp_dilations = [1, 6, 12, 18]
         self.build_network()
 
     def __call__(self):
@@ -70,63 +71,53 @@ class DeepLabv3p_mid(object):
         self.outputs = self.build_decoder(low_level_feat, middle_level_feat, high_level_feat)
 
     def build_encoder(self):
-        print("-----------build encoder: %s-----------" % self.encoder_name)
-        if self.encoder_name == 'res50':
+        print("-----------build encoder: %s-----------" % self.backbone_name)
+        if self.backbone_name == 'res50':
             backbone_model = tf.keras.applications.ResNet50(weights=self.pretrained, include_top=False, input_tensor=self.inputs)
-            first_layer_name = "conv2_block3_out" #After block 1
-            middle_layer_name = "conv3_block4_out" #After block 2
-            last_layer_name = "conv4_block6_out" #After block 4
-        elif self.encoder_name == 'res101':
+            first_layer_name = "conv2_block3_2_relu" 
+            middle_layer_name = "conv3_block4_2_relu" 
+            last_layer_name = "conv4_block6_2_relu" 
+        elif self.backbone_name == 'res101':
             backbone_model = tf.keras.applications.ResNet101(weights=self.pretrained, include_top=False, input_tensor=self.inputs)
-            first_layer_name = "conv2_block3_out" #After block 1
-            middle_layer_name = "conv3_block4_out" #After block 2
-            last_layer_name = "conv4_block23_out" #After block 4
-            
+            first_layer_name = "conv2_block3_2_relu" 
+            middle_layer_name = "conv3_block4_2_relu" 
+            last_layer_name = "conv4_block23_2_relu"
+
         low_level_feat = backbone_model.get_layer(first_layer_name).output
         middle_level_feat = backbone_model.get_layer(middle_layer_name).output
-        layer_block3 = backbone_model.get_layer(last_layer_name).output
-
-        #block4
-        outputs = self._bottleneck_resblock(layer_block3, 2048, 1, 2, 'block4_unit_1', identity_connection=False)
-        for i in range(2, 4):
-            outputs = self._bottleneck_resblock(outputs, 2048, 1, 1, 'block4_unit_%d'%i)
-        high_level_feat = outputs
-
+        high_level_feat = backbone_model.get_layer(last_layer_name).output
+        # high_level_feat = self._SimAM(high_level_feat)
+        high_level_feat = SimAM()(high_level_feat)
+        
+         # Build ASPP module
+        x1 = self._ASPPv2(high_level_feat, 256, self.aspp_dilations)
+        x1 = tf.keras.layers.Conv2D(256, kernel_size=1, padding='same', kernel_initializer='he_normal')(x1)
+        x1 = tf.keras.layers.BatchNormalization()(x1)
+        x1 = tf.keras.layers.Activation('relu')(x1)
+        refined_high_level_feat = tf.keras.layers.UpSampling2D(size=(self.inputs.shape[1]//4//x1.shape[1], self.inputs.shape[2]//4//x1.shape[2]), interpolation="bilinear")(x1)
+        
         print("low_level_feat:", low_level_feat.shape)
         print("middle_level_feat:", middle_level_feat.shape)
         print("high_level_feat:", high_level_feat.shape)
 
-        return low_level_feat, middle_level_feat, high_level_feat
+        return low_level_feat, middle_level_feat, refined_high_level_feat
 
-    def build_decoder(self, low_level_feat, middle_level_feat, high_level_feat):
+    def build_decoder(self, low_level_feat, middle_level_feat, refined_high_level_feat):
         print("-----------build decoder-----------")
-        dilations = [1, 6, 12, 18]
-
-        # low_level_feat = self._SimAM(low_level_feat)
-        # high_level_feat = self._SimAM(high_level_feat)
-        low_level_feat = SimAM()(low_level_feat)
-        high_level_feat = SimAM()(high_level_feat) 
-
+        
         middle_features = SimAM()(middle_level_feat)
         middle_features = tf.keras.layers.Conv2D(48, (1, 1), padding='same', kernel_initializer='he_normal')(middle_features)
         middle_features = tf.keras.layers.BatchNormalization()(middle_features)
         middle_features = tf.keras.layers.ReLU()(middle_features)
         middle_features =  tf.keras.layers.UpSampling2D(name="Decoder_Upsampling1b", size=(2,2), interpolation="bilinear")(middle_features) #Upsampling x2
 
-        x1 = self._ASPPv2(high_level_feat, 256, dilations)
-        print("after asppv2 block:", x1.shape)
-
-        x1 = tf.keras.layers.Conv2D(256, kernel_size=1, padding='same', kernel_initializer='he_normal')(x1)
-        x1 = tf.keras.layers.BatchNormalization()(x1)
-        x1 = tf.keras.layers.Activation('relu')(x1)
-        print("Before the first UpSampling:", x1.shape)
-        x1 = tf.keras.layers.UpSampling2D(size=(self.inputs.shape[1]//4//x1.shape[1], self.inputs.shape[2]//4//x1.shape[2]), interpolation="bilinear")(x1)
-
+        low_level_feat = SimAM()(low_level_feat)
         low_level = tf.keras.layers.Conv2D(48, kernel_size=1, padding='same', kernel_initializer='he_normal')(low_level_feat)
         low_level = tf.keras.layers.BatchNormalization()(low_level)
         low_level = tf.keras.layers.Activation('relu')(low_level)
-        x = tf.keras.layers.Concatenate()([x1, middle_features, low_level])
-        #-------------------------------------------------------------------------------#
+
+        x = tf.keras.layers.Concatenate()([refined_high_level_feat, middle_features, low_level])
+
         x = tf.keras.layers.Conv2D(256, kernel_size=3, padding='same', kernel_initializer='he_normal')(x)
         x = tf.keras.layers.BatchNormalization()(x)
         x = tf.keras.layers.ReLU()(x)
@@ -136,36 +127,9 @@ class DeepLabv3p_mid(object):
         x = tf.keras.layers.ReLU()(x)
 
         x = tf.keras.layers.UpSampling2D(size=self.inputs.shape[1]//x.shape[1], interpolation="bilinear")(x)
-        print("Before the last UpSampling:", x.shape)
         outputs = tf.keras.layers.Conv2D(self.num_classes, kernel_size=1, padding='same', kernel_initializer='he_normal')(x)
 
         return outputs
-
-    def _bottleneck_resblock(self, x, filters, stride, dilation_factor, name, identity_connection=True):
-          assert filters % 4 == 0, 'Bottleneck number of output ERROR!'
-          # branch1
-          if not identity_connection:
-              o_b1 = tf.keras.layers.Conv2D(filters, kernel_size=1, strides=stride, padding='same', name='%s/shortcut'%name)(x)
-              o_b1 = tf.keras.layers.BatchNormalization(name='%s/shortcut_bn'%name)(o_b1)
-          else:
-              o_b1 = x
-          # branch2
-          o_b2a = tf.keras.layers.Conv2D(filters / 4, kernel_size=1, strides=1, padding='same', name='%s/conv1'%name)(x)
-          o_b2a = tf.keras.layers.BatchNormalization(name='%s/conv1_bn'%name)(o_b2a)
-          o_b2a = tf.keras.layers.Activation("relu", name='%s/conv1_relu'%name)(o_b2a)
-
-          o_b2b = tf.keras.layers.Conv2D(filters / 4, kernel_size=3, strides=stride, dilation_rate=dilation_factor, padding='same', name='%s/conv2'%name)(o_b2a)
-          o_b2b = tf.keras.layers.BatchNormalization(name='%s/conv2_bn'%name)(o_b2b)
-          o_b2b = tf.keras.layers.Activation("relu", name='%s/conv2_relu'%name)(o_b2b)
-
-          o_b2c = tf.keras.layers.Conv2D(filters, kernel_size=1, strides=1, padding='same', name='%s/conv3'%name)(o_b2b)
-          o_b2c = tf.keras.layers.BatchNormalization(name='%s/conv3_bn'%name)(o_b2c)
-
-          # add
-          outputs = tf.keras.layers.Add(name='%s/add'%name)([o_b1, o_b2c])
-          # relu
-          outputs = tf.keras.layers.Activation("relu", name='%s/relu'%name)(outputs)
-          return outputs
 
     def _Atrous_SepConv(self, x, conv_type="sepconv2d", prefix="None", filters=256, kernel_size=3,  stride=1, dilation_rate=1, use_bias=False):
         conv_dict = {
@@ -205,3 +169,6 @@ class DeepLabv3p_mid(object):
     #     E_inv = d / (4 *  tf.maximum(v, e_lambda) + 0.5)
     #     return inputs * tf.keras.activations.sigmoid(E_inv)
 
+
+model = DeepLabv3p_mid(num_classes=10, backbone_name="res101", input_shape=(512, 512, 3))()
+model.summary()
