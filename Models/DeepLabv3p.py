@@ -1,6 +1,6 @@
 ############################################################################################################################
 # This code implement the DeepLabv3+ model with Aligned Xception, ResNet101 and ResNet50 backbone
-# We reproduced the architecture published in [1] and [2]
+# We reproduced the architecture published in [1] and [2].
 # 
 # [1] @inproceedings{chen2018encoder,
 #  title={Encoder-decoder with atrous separable convolution for semantic image segmentation},

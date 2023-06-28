@@ -1,6 +1,7 @@
 import tensorflow as tf
 # https://towardsdatascience.com/creating-deeper-bottleneck-resnet-from-scratch-using-tensorflow-93e11ff7eb02
 # https://github.com/pytorch/vision/blob/1aef87d01eec2c0989458387fa04baebcc86ea7b/torchvision/models/resnet.py#L75
+# .
 
 class SimAM(tf.keras.layers.Layer):
     def __init__(self, e_lambda=1e-7, trainable=True, **kwargs):
