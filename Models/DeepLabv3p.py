@@ -18,6 +18,15 @@
 #  year={2017}
 # }
 # https://arxiv.org/pdf/1706.05587.pdf
+
+# [3] @inproceedings{he2016deep,
+#  title={Deep residual learning for image recognition},
+#  author={He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+#  booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},
+#  pages={770--778},
+#  year={2016}
+# }
+# https://arxiv.org/pdf/1512.03385.pdf
 ############################################################################################################################
 
 import tensorflow as tf
@@ -213,7 +222,7 @@ class DeepLabv3p(object):
         o_b2a = tf.keras.layers.BatchNormalization(name='%s_2_bn'%name)(o_b2a)
         o_b2a = tf.keras.layers.Activation("relu", name='%s_2_relu'%name)(o_b2a)
 
-        o_b2b = tf.keras.layers.Conv2D(filters//4, kernel_size=3, strides=stride, dilation_rate=dilation_factor, padding='same', name='%s/conv2'%name)(o_b2a)
+        o_b2b = tf.keras.layers.Conv2D(filters//4, kernel_size=3, strides=stride, dilation_rate=dilation_factor, padding='same', name='%s_3_conv'%name)(o_b2a)
         o_b2b = tf.keras.layers.BatchNormalization(name='%s_3_bn'%name)(o_b2b)
         o_b2b = tf.keras.layers.Activation("relu", name='%s_3_relu'%name)(o_b2b)
 
@@ -237,7 +246,6 @@ class DeepLabv3p(object):
         x = tf.keras.layers.BatchNormalization(name='%s_bn'%name)(x)
         x = tf.keras.layers.Activation('relu', name='%s_relu'%name)(x)
         return x
-
 
     def _ASPPv2(self, x, nb_filters, d):
         x1 = self._Atrous_SepConv(x, conv_type="sepconv2d", name='aspp_conv_r%d'%d[0], filters=nb_filters, kernel_size=1, dilation_rate=d[0], use_bias=True)

@@ -1,3 +1,19 @@
+############################################################################################################################
+# This code implement the mid-DeepLabv3+ model with ResNet101 and ResNet50 backbone with SimAM attention module
+# 
+# [1] @inproceedings{yang2021simam,
+#  title={Simam: A simple, parameter-free attention module for convolutional neural networks},
+#  author={Yang, Lingxiao and Zhang, Ru-Yuan and Li, Lida and Xie, Xiaohua},
+#  booktitle={International conference on machine learning},
+#  pages={11863--11874},
+#  year={2021},
+#  organization={PMLR}
+# }
+# https://github.com/ZjjConan/SimAM
+# http://proceedings.mlr.press/v139/yang21o/yang21o.pdf
+############################################################################################################################
+
+
 import tensorflow as tf
 # https://towardsdatascience.com/creating-deeper-bottleneck-resnet-from-scratch-using-tensorflow-93e11ff7eb02
 # https://github.com/pytorch/vision/blob/1aef87d01eec2c0989458387fa04baebcc86ea7b/torchvision/models/resnet.py#L75
