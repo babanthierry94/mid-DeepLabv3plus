@@ -1,11 +1,3 @@
-# import library
-import os
-import json
-from glob import glob
-from PIL import Image
-import numpy as np
-import tensorflow as tf
-
 #########################################################################################################
 # Datasets link
 # UECFOODPIXCOMPLETE
@@ -19,9 +11,24 @@ import tensorflow as tf
 # https://drive.google.com/drive/u/1/folders/1MugfmVehtIjjyqtphs-4u0GksuHy3Vjz
 #########################################################################################################
 
+# import library
+import os
+import json
+from glob import glob
+from PIL import Image
+import numpy as np
+import tensorflow as tf
+
 class CreateDataset() :
+    """
+    Arguments :
+        dataset_name  : camerfood10, brazillian, uecfoodpix
+        dataset_path  : absolute path of the dataset
+        img_size    : input image shape (High, Width, Channel)
+        batch_size  : the ratio between input image size and the size of backbone last output features
+    """
     
-    def __init__(self, dataset_name, dataset_path, img_size=512, batch_size=2, num_classes=11):
+    def __init__(self, dataset_name, dataset_path, img_size=512, batch_size=2):
        
         if dataset_name not in ['camerfood10', 'brazillian', 'uecfoodpix']:
             print("ERROR! Dataset name should be : 'camerfood10', 'brazillian', 'uecfoodpix'")
@@ -41,7 +48,6 @@ class CreateDataset() :
         # Dataset parameters
         self.BATCH_SIZE = batch_size
         self.IMAGE_SIZE = img_size
-        self.NB_CLASS = num_classes
         
     def load_data(self):
         """
@@ -97,12 +103,14 @@ class CreateDataset() :
         def read_mask(path):
 
             if self.dataset_name == "camefood10":
+                # Number of classes of CamerFood10 dataset
+                NB_CLASS =  10 + 1
                 # Load mask
                 y = Image.open(path).convert('L')
                 # NEAREST to avoid the problem with pixel value changing in mask
                 y = y.resize((self.IMAGE_SIZE, self.IMAGE_SIZE), resample=Image.NEAREST)
                 y = np.asarray(y)
-                n = 255 // (self.NB_CLASS-1)
+                n = 255 // (NB_CLASS-1)
                 y = y / n
                 # print(np.unique(y))
                 y = np.expand_dims(y, axis=-1)
