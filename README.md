@@ -10,59 +10,31 @@ MyFood and UECFOODPIXCOMPLETE datasets
 ### CamerFood10
 ```
 @misc{camerfood10v1
-author = {Thierry Roland BABAN A EREP},
+author = {Thierry Roland, BABAN A EREP},
 year = {2023},
 title = {CamerFood10 : A dataset for Camerounian food image segmentation},
 howpublished= {\https://drive.google.com/drive/folders/1MugfmVehtIjjyqtphs-4u0GksuHy3Vjz?usp=drive_link}
 ```
 ### mid-DeepLabv3+
-
-# Related Paper
+```
+@misc{Charles2013,
+  author = {Thierry Roland, BABAN A EREP},
+  title = {Mid-DeepLabv3+ model implementation Tensorflow},
+  year = {2013},
+  publisher = {GitHub},
+  howpublished = {\url{https://github.com/charlespwd/project-title}},
+  commit = {4f57d6a0e4c030202a07a60bc1bb1ed1544bf679}
+}
+```
+# Related Papers
 ### Models : DeepLabv3+, GourmetNet, Unet
 ```
-@inproceedings{chen2018encoder,
-  title={Encoder-decoder with atrous separable convolution for semantic image segmentation},
-  author={Chen, Liang-Chieh and Zhu, Yukun and Papandreou, George and Schroff, Florian and Adam, Hartwig},
-  booktitle={Proceedings of the European conference on computer vision (ECCV)},
-  pages={801--818},
-  year={2018}
- }
-
-@article{sharma2021gourmetnet,
-  title={Gourmetnet: Food segmentation using multi-scale waterfall features with spatial and channel attention},
-  author={Sharma, Udit and Artacho, Bruno and Savakis, Andreas},
-  journal={Sensors},
-  volume={21},
-  number={22},
-  pages={7504},
-  year={2021},
-  publisher={Multidisciplinary Digital Publishing Institute}
-}
-
-@inproceedings{ronneberger2015u,
-  title={U-net: Convolutional networks for biomedical image segmentation},
-  author={Ronneberger, Olaf and Fischer, Philipp and Brox, Thomas},
-  booktitle={Medical Image Computing and Computer-Assisted Intervention--MICCAI 2015: 18th International Conference, Munich, Germany, October 5-9, 2015, Proceedings, Part III 18},
-  pages={234--241},
-  year={2015},
-  organization={Springer}
-}
+[1] Chen, L. C., Zhu, Y., Papandreou, G., Schroff, F., & Adam, H. (2018). Encoder-decoder with atrous separable convolution for semantic image segmentation. In Proceedings of the European conference on computer vision (ECCV) (pp. 801-818).
+[2] Sharma, U., Artacho, B., & Savakis, A. (2021). Gourmetnet: Food segmentation using multi-scale waterfall features with spatial and channel attention. Sensors, 21(22), 7504.
+[3] Ronneberger, O., Fischer, P., & Brox, T. (2015). U-net: Convolutional networks for biomedical image segmentation. In Medical Image Computing and Computer-Assisted Intervention–MICCAI 2015: 18th International Conference, Munich, Germany, October 5-9, 2015, Proceedings, Part III 18 (pp. 234-241). Springer International Publishing.
 ```
 ### Datasets : MyFood, UECFOODPIXCOMPLETE
 ```
-@inproceedings{freitas2020myfood,
-  title={Myfood: A food segmentation and classification system to aid nutritional monitoring},
-  author={Freitas, Charles NC and Cordeiro, Filipe R and Macario, Valmir},
-  booktitle={2020 33rd SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI)},
-  pages={234--239},
-  year={2020},
-  organization={IEEE}
-}
-
-@inproceedings{uecfoodpixcomplete,
-    title={{UEC-FoodPIX Complete}: A Large-scale Food Image Segmentation Dataset},
-    author={Okamoto, Kaimu and Yanai, Keiji},
-    booktitle={Proc. of ICPR Workshop on Multimedia Assisted Dietary Management(MADiMa)},
-    year={2021},
-}
+[4] Freitas, C. N., Cordeiro, F. R., & Macario, V. (2020, November). Myfood: A food segmentation and classification system to aid nutritional monitoring. In 2020 33rd SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI) (pp. 234-239). IEEE.
+[5] Okamoto, K., & Yanai, K. (2021). UEC-FoodPIX Complete: A large-scale food image segmentation dataset. In Pattern Recognition. ICPR International Workshops and Challenges: Virtual Event, January 10–15, 2021, Proceedings, Part V (pp. 647-659). Springer International Publishing.
 ```
