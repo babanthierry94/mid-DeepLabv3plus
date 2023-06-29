@@ -235,5 +235,3 @@ class GourmetNet(object):
 
 model = GourmetNet(num_classes=10, backbone_name="res50", output_stride=16, input_shape=(512,512,3))()
 model.summary()
-
-# https://github.com/uditsharma29/GourmetNet
