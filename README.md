@@ -8,6 +8,7 @@ MyFood and UECFOODPIXCOMPLETE datasets
 
 # How to cite this work
 ### CamerFood10
+If you publish a paper using our dataset, we’d glad if you could refer to the following paper:
 ```
 @misc{camerfood10v1
 author = {Thierry Roland, BABAN A EREP},
@@ -37,4 +38,14 @@ howpublished= {\https://drive.google.com/drive/folders/1MugfmVehtIjjyqtphs-4u0Gk
 ```
 [4] Freitas, C. N., Cordeiro, F. R., & Macario, V. (2020, November). Myfood: A food segmentation and classification system to aid nutritional monitoring. In 2020 33rd SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI) (pp. 234-239). IEEE.
 [5] Okamoto, K., & Yanai, K. (2021). UEC-FoodPIX Complete: A large-scale food image segmentation dataset. In Pattern Recognition. ICPR International Workshops and Challenges: Virtual Event, January 10–15, 2021, Proceedings, Part V (pp. 647-659). Springer International Publishing.
+```
+
+# Contact
+```
+Please feel free to contact us with any comments and questions by email
+```
+
+# Agreement
+```
+CamerFood10 dataset can be used only for non-commercial research purpose.
 ```
